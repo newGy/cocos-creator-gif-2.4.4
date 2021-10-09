@@ -582,15 +582,24 @@ class GIFCache {
             
             cc.macro.ALLOW_IMAGE_BITMAP = true;
             cc.assetManager.downloader.register('.gif', cc.assetManager.downloader._downloaders['.binary']);
-            cc.assetManager.parser.register('.gif', async (file, options, onComplete) => {
-                let gif = new GIF();
-                console.log('>>> file:',file);
-                let buffer = file;
-                if(file.arrayBuffer){
-                    buffer = await file.arrayBuffer();
-                }
-                gif.handle(buffer, onComplete)
-            })
+            if (CC_JSB) {
+                cc.assetManager.parser.register('.gif', (file, options, onComplete) => {
+                    let gif = new GIF();
+                    console.log('>>> file:',file);
+                    let buffer = jsb.fileUtils.getDataFromFile(file);
+                    gif.handle(buffer, onComplete);
+                })
+            } else {
+                cc.assetManager.parser.register('.gif', async (file, options, onComplete) => {
+                    let gif = new GIF();
+                    console.log('>>> file:',file);
+                    let buffer = file;
+                    if(file.arrayBuffer){
+                        buffer = await file.arrayBuffer();
+                    }
+                    gif.handle(buffer, onComplete)
+                })
+            }
         }
         return GIFCache.instance;
     }
